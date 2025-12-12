@@ -33,6 +33,24 @@ export const SUBSTITUTION_MATRIX: SubstitutionMatrix = {
       { id: 'MON_2B_ALT2', order: '2B', name: 'Band Pull-Apart', sets: 3, reps: '20', tempo: '1-0-1', notes: 'Stability Bias: Palms up (supinated). Pull band to chest.', weightGuide: 'Red Band' },
       { id: 'MON_2B_ALT3', order: '2B', name: 'Ski-Erg Intervals', sets: 3, reps: '30s', tempo: 'Max', notes: 'Velocity Bias: Upper body only. High turnover rate.', weightGuide: 'Damper 6-8' },
       { id: 'MON_2B_ALT4', order: '2B', name: 'Prone Y-Raise', sets: 3, reps: '12', tempo: '2-2-1', notes: 'Limited Equip: Lie on floor. Lift arms in "Y" shape.', weightGuide: 'Body' }
+    ],
+    '3A': [
+      { id: 'MON_3A_ALT1', order: '3A', name: 'Plate Halo (Kneeling)', sets: 3, reps: '10 / side', tempo: '2-1-1', notes: 'Load Bias: Tall-kneel. Circle plate around head. Core tight.', weightGuide: '10-15 kg Plate' },
+      { id: 'MON_3A_ALT2', order: '3A', name: 'Landmine Rainbows', sets: 3, reps: '8 / side', tempo: '2-0-2', notes: 'Stability Bias: Arc bar from hip to hip overhead.', weightGuide: 'Bar + 5-10 kg' },
+      { id: 'MON_3A_ALT3', order: '3A', name: 'KB High-Pull', sets: 3, reps: '8 / side', tempo: 'X-0-X', notes: 'Velocity Bias: Explode hips, pull elbow high.', weightGuide: '16-20 kg' },
+      { id: 'MON_3A_ALT4', order: '3A', name: 'Band Diagonal Lift', sets: 3, reps: '12 / side', tempo: '1-0-1', notes: 'Limited Equip: Step on band. Lift diagonally across body.', weightGuide: 'Red/Black Band' }
+    ],
+    '3B': [
+      { id: 'MON_3B_ALT1', order: '3B', name: 'Suitcase Carry', sets: 3, reps: '40m / side', tempo: 'Walk', notes: 'Load Bias: Heavy DB in one hand. Shoulders level. Walk straight.', weightGuide: '24-32 kg' },
+      { id: 'MON_3B_ALT2', order: '3B', name: 'Dead Bug (Wall Press)', sets: 3, reps: '12 / side', tempo: '3-1-1', notes: 'Stability Bias: Press hands into wall. Lower opposite leg.', weightGuide: 'Body' },
+      { id: 'MON_3B_ALT3', order: '3B', name: 'Russian Twist (Weighted)', sets: 3, reps: '20 total', tempo: '1-0-1', notes: 'Velocity Bias: Feet off floor if possible. Rotate shoulders, not just arms.', weightGuide: '5-10 kg Plate' },
+      { id: 'MON_3B_ALT4', order: '3B', name: 'Side Plank Leg Lift', sets: 3, reps: '10 / side', tempo: '2-1-1', notes: 'Limited Equip: Hold side plank. Lift top leg up and down.', weightGuide: 'Body' }
+    ],
+    'FINISHER': [
+      { id: 'MON_FIN_ALT1', order: 'FINISHER', name: 'Pigeon Stretch (Elevated)', sets: 1, reps: '2 min / side', tempo: 'Hold', notes: 'Load Bias: Leg on bench/box. Lean forward. Deep hip stretch.', weightGuide: 'Body' },
+      { id: 'MON_FIN_ALT2', order: 'FINISHER', name: 'Seated Piriformis Stretch', sets: 1, reps: '2 min / side', tempo: 'Hold', notes: 'Stability Bias: Seated on chair. Cross ankle over knee. Lean forward.', weightGuide: 'Body' },
+      { id: 'MON_FIN_ALT3', order: 'FINISHER', name: 'Leg Swings (Front/Back)', sets: 2, reps: '20 / side', tempo: 'Dynamic', notes: 'Velocity Bias: Swing leg forward and back. Loosen hip flexors.', weightGuide: 'Body' },
+      { id: 'MON_FIN_ALT4', order: 'FINISHER', name: 'Frog Stretch', sets: 1, reps: '2 min', tempo: 'Hold', notes: 'Limited Equip: Knees wide on floor. Hips back toward heels.', weightGuide: 'Body' }
     ]
   },
   wednesday: {
@@ -59,6 +77,24 @@ export const SUBSTITUTION_MATRIX: SubstitutionMatrix = {
       { id: 'WED_2B_ALT2', order: '2B', name: 'Pallof Circles', sets: 3, reps: '8 / side', tempo: '3-3-3', notes: 'Stability Bias: Draw circles with hands while holding Pallof position.', weightGuide: '10-12 kg' },
       { id: 'WED_2B_ALT3', order: '2B', name: 'Med Ball Slam', sets: 3, reps: '10', tempo: 'X-X-X', notes: 'Velocity Bias: Lift ball high, slam straight down with core.', weightGuide: '6-8 kg' },
       { id: 'WED_2B_ALT4', order: '2B', name: 'Band Wood Chop', sets: 3, reps: '12 / side', tempo: '1-0-1', notes: 'Limited Equip: Band anchored high. Chop down across body.', weightGuide: 'Red/Black Band' }
+    ],
+    '3A': [
+      { id: 'WED_3A_ALT1', order: '3A', name: 'T-Bar Row', sets: 3, reps: '10', tempo: '2-1-1', notes: 'Load Bias: Chest on pad. Pull elbows back. Squeeze mid-back.', weightGuide: '20-40 kg' },
+      { id: 'WED_3A_ALT2', order: '3A', name: 'Single-Arm DB Row', sets: 3, reps: '10 / side', tempo: '2-1-1', notes: 'Stability Bias: Hand and knee on bench. Flat back. Pull to hip.', weightGuide: '20-30 kg' },
+      { id: 'WED_3A_ALT3', order: '3A', name: 'Pendlay Row', sets: 3, reps: '8', tempo: 'X-0-X', notes: 'Velocity Bias: Bar on floor. Explosive pull to chest. Return to floor.', weightGuide: '40-60 kg' },
+      { id: 'WED_3A_ALT4', order: '3A', name: 'Inverted Row', sets: 3, reps: '10', tempo: '2-1-1', notes: 'Limited Equip: (TRX/Bar). Keep body straight. Pull chest to bar/handles.', weightGuide: 'Bodyweight' }
+    ],
+    '3B': [
+      { id: 'WED_3B_ALT1', order: '3B', name: 'Sumo Goblet Squat', sets: 3, reps: '10', tempo: '3-0-1', notes: 'Load Bias: Wide stance. Toes out. Hold heavy DB at chest. Sink deep.', weightGuide: '20-30 kg' },
+      { id: 'WED_3B_ALT2', order: '3B', name: 'Lateral Lunge (Slider)', sets: 3, reps: '8 / side', tempo: '3-0-1', notes: 'Stability Bias: Slider under one foot. Slide out. Keep other leg straight.', weightGuide: 'Body' },
+      { id: 'WED_3B_ALT3', order: '3B', name: 'Monster Walk (Banded)', sets: 3, reps: '15 / side', tempo: '1-1-1', notes: 'Velocity Bias: Band around ankles. Wide stance. Walk sideways. Keep tension.', weightGuide: 'Heavy Band' },
+      { id: 'WED_3B_ALT4', order: '3B', name: 'Adductor Machine', sets: 3, reps: '12', tempo: '2-1-1', notes: 'Limited Equip: Seated machine. Squeeze legs together.', weightGuide: 'Machine Weight' }
+    ],
+    'FINISHER': [
+      { id: 'WED_FIN_ALT1', order: 'FINISHER', name: 'Overhead Waiter\'s Walk', sets: 3, reps: '30m / side', tempo: 'Walk', notes: 'Load Bias: Heavy DB/KB held overhead. Arm locked out. Core tight.', weightGuide: '16-24 kg' },
+      { id: 'WED_FIN_ALT2', order: 'FINISHER', name: 'Rack Carry', sets: 3, reps: '40m / side', tempo: 'Walk', notes: 'Stability Bias: KB held in front rack position (chest height). Elbow tucked.', weightGuide: '20-28 kg' },
+      { id: 'WED_FIN_ALT3', order: 'FINISHER', name: 'Farmer\'s Walk', sets: 3, reps: '40m', tempo: 'Walk', notes: 'Velocity Bias: Heavy weights in both hands. Walk fast but controlled.', weightGuide: '24-32 kg / hand' },
+      { id: 'WED_FIN_ALT4', order: 'FINISHER', name: 'Plank Drag', sets: 3, reps: '10 / side', tempo: '1-1-1', notes: 'Limited Equip: High plank. Drag weight (sandbag/plate) across under body.', weightGuide: '10-20 kg' }
     ]
   },
   friday: {
@@ -85,6 +121,24 @@ export const SUBSTITUTION_MATRIX: SubstitutionMatrix = {
       { id: 'FRI_2B_ALT2', order: '2B', name: 'Pec Dec Machine', sets: 3, reps: '12', tempo: '2-1-1', notes: 'Stability Bias: Machine fly. Focus on squeezing chest at center.', weightGuide: '40-50 kg' },
       { id: 'FRI_2B_ALT3', order: '2B', name: 'Ring/TRX Fly', sets: 3, reps: '10', tempo: '3-1-1', notes: 'Velocity Bias: Bodyweight suspension. Keep core tight.', weightGuide: 'Body' },
       { id: 'FRI_2B_ALT4', order: '2B', name: 'Wide Push-Up', sets: 3, reps: '12', tempo: '2-1-1', notes: 'Limited Equip: Hands wider than shoulders. Chest to floor.', weightGuide: 'Body' }
+    ],
+    '3A': [
+      { id: 'FRI_3A_ALT1', order: '3A', name: 'Ab Wheel Rollout', sets: 3, reps: '10', tempo: '2-1-1', notes: 'Load Bias: Kneeling. Roll out until flat. Pull back with abs.', weightGuide: 'Body' },
+      { id: 'FRI_3A_ALT2', order: '3A', name: 'Bird-Dog Row', sets: 3, reps: '10 / side', tempo: '2-1-1', notes: 'Stability Bias: Bench. Opposite arm/leg extended. Row with free hand.', weightGuide: '10-15 kg' },
+      { id: 'FRI_3A_ALT3', order: '3A', name: 'Stir-the-Pot', sets: 3, reps: '10 circles', tempo: 'Slow', notes: 'Velocity Bias: Plank on physioball. Rotate elbows in circles.', weightGuide: 'Body' },
+      { id: 'FRI_3A_ALT4', order: '3A', name: 'Dead Bug (Limb Drop)', sets: 3, reps: '12 / side', tempo: '3-1-1', notes: 'Limited Equip: Back flat. Drop opposite arm/leg. Core braced.', weightGuide: 'Body' }
+    ],
+    '3B': [
+      { id: 'FRI_3B_ALT1', order: '3B', name: 'Leg Extension Machine', sets: 3, reps: '12', tempo: '2-0-1', notes: 'Load Bias: Seated. Kick legs out. Squeeze quads (VMO) at top.', weightGuide: 'Machine Weight' },
+      { id: 'FRI_3B_ALT2', order: '3B', name: 'Poliquin Step-Up', sets: 3, reps: '10 / leg', tempo: '2-1-1', notes: 'Stability Bias: Heel elevated on plate. Step up, drive knee.', weightGuide: 'Body + DBs' },
+      { id: 'FRI_3B_ALT3', order: '3B', name: 'Reverse Sled Drag', sets: 3, reps: '30m', tempo: 'Walk', notes: 'Velocity Bias: Walk backwards dragging sled. Quads burn.', weightGuide: 'Sled + Weight' },
+      { id: 'FRI_3B_ALT4', order: '3B', name: 'Reverse Nordic Curl', sets: 3, reps: '8', tempo: '3-0-1', notes: 'Limited Equip: Kneeling. Lean back keeping hips extended.', weightGuide: 'Body' }
+    ],
+    'FINISHER': [
+      { id: 'FRI_FIN_ALT1', order: 'FINISHER', name: 'Face Pull (Ext Rot)', sets: 3, reps: '15', tempo: '1-1-2', notes: 'Load Bias: Rope to forehead. Rotate hands up at end range.', weightGuide: '15-25 kg' },
+      { id: 'FRI_FIN_ALT2', order: 'FINISHER', name: 'TRX Y-Fly', sets: 3, reps: '12', tempo: '2-1-2', notes: 'Stability Bias: Suspension trainer. Arms straight in "Y". Squeeze lower trap.', weightGuide: 'Body' },
+      { id: 'FRI_FIN_ALT3', order: 'FINISHER', name: 'Rear Delt Machine', sets: 3, reps: '15', tempo: '1-0-1', notes: 'Velocity Bias: Reverse Pec Dec. Keep arms straight. Squeeze back.', weightGuide: 'Machine Weight' },
+      { id: 'FRI_FIN_ALT4', order: 'FINISHER', name: 'Band No-Money', sets: 3, reps: '20', tempo: '1-1-1', notes: 'Limited Equip: Elbows at sides. Rotate hands out against band.', weightGuide: 'Mini-Band' }
     ]
   }
 };

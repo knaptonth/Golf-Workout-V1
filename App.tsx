@@ -5,7 +5,7 @@ import { History } from './components/History';
 import { WORKOUTS, SCHEDULE } from './constants';
 import { getPreferredVersion, setPreferredVersion } from './services/storageService';
 import { Version, WorkoutDay } from './types';
-import { Dumbbell, Play, Calendar, ChevronLeft, ChevronRight, List } from 'lucide-react';
+import { Dumbbell, Play, Calendar, ChevronLeft, ChevronRight, List, Check, User, Info, ArrowLeft } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('workout');
@@ -62,26 +62,93 @@ const App: React.FC = () => {
     if (activeTab === 'settings') {
       return (
         <div className="space-y-6 animate-fade-in">
-          <h2 className="text-2xl font-bold text-white">Settings</h2>
-          <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-            <h3 className="text-lg font-medium text-white mb-4">Equipment Profile</h3>
-            <div className="space-y-3">
-              <button 
-                onClick={() => handleVersionChange('V1')}
-                className={`w-full text-left p-4 rounded-xl border transition-all ${version === 'V1' ? 'bg-blue-900/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'}`}
-              >
-                <div className="font-bold">Version 1: Full Gym</div>
-                <div className="text-xs mt-1 opacity-80">Commercial gym access (Smith machine, cables, heavy DBs)</div>
-              </button>
-              <button 
-                onClick={() => handleVersionChange('V2')}
-                className={`w-full text-left p-4 rounded-xl border transition-all ${version === 'V2' ? 'bg-blue-900/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'}`}
-              >
-                <div className="font-bold">Version 2: Tour Spec (Limited)</div>
-                <div className="text-xs mt-1 opacity-80">Functional Trainer, Multi-Station, Dumbbells</div>
-              </button>
+          <div className="flex items-center gap-3 mb-2">
+            <button 
+              onClick={() => setActiveTab('workout')}
+              className="p-2 -ml-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <h2 className="text-2xl font-bold text-white leading-none">Settings</h2>
+          </div>
+
+          <div className="flex items-center gap-3 mb-6 p-4 bg-slate-800 rounded-xl border border-slate-700">
+            <div className="bg-blue-600/20 p-3 rounded-full">
+              <User size={24} className="text-blue-500" />
+            </div>
+            <div>
+              <p className="text-white font-medium">Training Preferences</p>
+              <p className="text-slate-400 text-xs mt-0.5">Select your equipment profile below.</p>
             </div>
           </div>
+
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider ml-1">Default Protocol</h3>
+            
+            <button 
+              onClick={() => handleVersionChange('V1')}
+              className={`w-full relative text-left p-5 rounded-2xl border-2 transition-all duration-200 group ${
+                version === 'V1' 
+                ? 'bg-blue-950/20 border-blue-500 shadow-lg shadow-blue-900/10' 
+                : 'bg-slate-800 border-slate-700 hover:border-slate-500 hover:bg-slate-750'
+              }`}
+            >
+              {version === 'V1' && (
+                <div className="absolute top-4 right-4 bg-blue-500 text-white rounded-full p-1 shadow-sm">
+                  <Check size={16} strokeWidth={3} />
+                </div>
+              )}
+              <div className="flex items-start gap-4">
+                <div className={`p-3 rounded-xl ${version === 'V1' ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                  <Dumbbell size={24} />
+                </div>
+                <div>
+                  <div className={`font-bold text-lg ${version === 'V1' ? 'text-white' : 'text-slate-200'}`}>Version 1: Full Gym</div>
+                  <p className="text-sm text-slate-400 mt-1 leading-relaxed">
+                    Designed for commercial gyms. Includes Smith Machine, Cables, Kettlebells, and Heavy Dumbbells.
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => handleVersionChange('V2')}
+              className={`w-full relative text-left p-5 rounded-2xl border-2 transition-all duration-200 group ${
+                version === 'V2' 
+                ? 'bg-yellow-950/20 border-yellow-500 shadow-lg shadow-yellow-900/10' 
+                : 'bg-slate-800 border-slate-700 hover:border-slate-500 hover:bg-slate-750'
+              }`}
+            >
+               {version === 'V2' && (
+                <div className="absolute top-4 right-4 bg-yellow-500 text-slate-900 rounded-full p-1 shadow-sm">
+                  <Check size={16} strokeWidth={3} />
+                </div>
+              )}
+              <div className="flex items-start gap-4">
+                <div className={`p-3 rounded-xl ${version === 'V2' ? 'bg-yellow-500 text-slate-900' : 'bg-slate-700 text-slate-400'}`}>
+                  <Info size={24} />
+                </div>
+                <div>
+                  <div className={`font-bold text-lg ${version === 'V2' ? 'text-white' : 'text-slate-200'}`}>Version 2: Tour Spec</div>
+                  <p className="text-sm text-slate-400 mt-1 leading-relaxed">
+                    Optimized for "Tour" environments or limited setups. Requires Functional Trainer (Cable), Multi-Station, and Dumbbells.
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+          
+          <div className="bg-slate-800/50 p-4 rounded-xl border border-dashed border-slate-700 text-slate-500 text-sm leading-relaxed mt-4">
+            <Info size={16} className="inline mr-2 mb-0.5" />
+            Changing your protocol will update your dashboard for future workouts. Past history logs remain unchanged.
+          </div>
+
+          <button 
+             onClick={() => setActiveTab('workout')}
+             className="w-full mt-6 bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl border border-slate-700 flex items-center justify-center gap-2 transition-all"
+          >
+            Confirm & Return to Workout
+          </button>
         </div>
       );
     }
