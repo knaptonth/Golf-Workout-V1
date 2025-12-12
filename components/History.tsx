@@ -34,7 +34,7 @@ export const History: React.FC = () => {
                   contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
                   cursor={{ fill: '#334155' }}
                 />
-                <Bar dataKey="sets" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sets" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -51,7 +51,7 @@ export const History: React.FC = () => {
         {logs.map(log => (
           <div key={log.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700">
             <div className="flex justify-between items-start mb-2">
-              <div className="flex items-center gap-2 text-emerald-400">
+              <div className="flex items-center gap-2 text-yellow-400">
                 <Calendar size={16} />
                 <span className="font-medium text-sm">
                   {new Date(log.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}

@@ -57,14 +57,14 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
   const getBiasInfo = (exercise: Exercise) => {
     // Check if it's an "Original" V1 or V2 workout
     if (exercise.id.includes('_V1')) return { label: 'V1 Original', color: 'text-indigo-400 bg-indigo-900/30 border-indigo-500/30', icon: <Star size={12} /> };
-    if (exercise.id.includes('_V2')) return { label: 'V2 Limited', color: 'text-pink-400 bg-pink-900/30 border-pink-500/30', icon: <Home size={12} /> };
+    if (exercise.id.includes('_V2')) return { label: 'V2 Limited', color: 'text-yellow-400 bg-yellow-900/30 border-yellow-500/30', icon: <Home size={12} /> };
     
     // Check notes for bias
     const notes = exercise.notes;
     if (notes.includes('Load Bias')) return { label: 'Strength', color: 'text-purple-400 bg-purple-900/30 border-purple-500/30', icon: <Dumbbell size={12} /> };
     if (notes.includes('Stability Bias')) return { label: 'Stability', color: 'text-blue-400 bg-blue-900/30 border-blue-500/30', icon: <Anchor size={12} /> };
-    if (notes.includes('Velocity Bias')) return { label: 'Speed', color: 'text-amber-400 bg-amber-900/30 border-amber-500/30', icon: <Zap size={12} /> };
-    if (notes.includes('Limited Equip')) return { label: 'Limited', color: 'text-emerald-400 bg-emerald-900/30 border-emerald-500/30', icon: <Home size={12} /> };
+    if (notes.includes('Velocity Bias')) return { label: 'Speed', color: 'text-orange-400 bg-orange-900/30 border-orange-500/30', icon: <Zap size={12} /> };
+    if (notes.includes('Limited Equip')) return { label: 'Limited', color: 'text-yellow-400 bg-yellow-900/30 border-yellow-500/30', icon: <Home size={12} /> };
     return { label: 'Alternative', color: 'text-slate-400 bg-slate-800 border-slate-700', icon: <RefreshCw size={12} /> };
   };
 
@@ -167,19 +167,19 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
   if (showFeedback) {
     return (
       <div className="flex flex-col h-full justify-center items-center p-6 text-center animate-fade-in">
-        <div className="bg-emerald-500/10 p-4 rounded-full mb-6 ring-1 ring-emerald-500/50">
-           <CheckCircle2 className="w-16 h-16 text-emerald-500" />
+        <div className="bg-blue-500/10 p-4 rounded-full mb-6 ring-1 ring-blue-500/50">
+           <CheckCircle2 className="w-16 h-16 text-blue-500" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Workout Complete!</h2>
         <p className="text-slate-400 mb-6">Great session. Here is your AI Coach feedback:</p>
         <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 w-full text-left mb-8 shadow-xl">
-          <div className="flex items-center gap-2 mb-3 text-emerald-400 font-semibold">
+          <div className="flex items-center gap-2 mb-3 text-yellow-400 font-semibold">
              <Info size={18} />
              <span>Coach's Notes</span>
           </div>
           <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">{feedback}</p>
         </div>
-        <button onClick={onFinish} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition shadow-lg">
+        <button onClick={onFinish} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition shadow-lg">
           Return to Dashboard
         </button>
       </div>
@@ -197,7 +197,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
           <h1 className="text-2xl font-bold text-white leading-none">{day.title}</h1>
         </div>
         <div className="flex items-center justify-between pl-1">
-          <p className="text-emerald-500 font-medium">{day.focus}</p>
+          <p className="text-yellow-400 font-medium">{day.focus}</p>
           <div className="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-slate-400 border border-slate-700">
             {activeExercises.filter(e => !e.isRest).length} Moves
           </div>
@@ -232,8 +232,8 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                         disabled={!alternates}
                         className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg border transition-all ${
                           alternates 
-                            ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/60 hover:border-emerald-400 cursor-pointer' 
-                            : 'border-transparent text-emerald-400 font-bold text-lg p-0'
+                            ? 'bg-blue-950/40 border-blue-500/50 text-blue-400 hover:bg-blue-900/60 hover:border-blue-400 cursor-pointer' 
+                            : 'border-transparent text-blue-400 font-bold text-lg p-0'
                         }`}
                       >
                          <span className={alternates ? "font-bold" : "font-bold text-lg"}>{exercise.order}</span>
@@ -246,13 +246,13 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                    {alternates && (
                      <button 
                         onClick={() => setSwapIndex(idx)}
-                        className="text-xs flex items-center gap-1.5 text-slate-400 hover:text-emerald-300 transition-colors mb-2 ml-1"
+                        className="text-xs flex items-center gap-1.5 text-slate-400 hover:text-blue-300 transition-colors mb-2 ml-1"
                      >
                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border ${biasInfo.color} text-[10px]`}>
                           {biasInfo.icon}
                           {biasInfo.label}
                        </span>
-                       <span className="underline decoration-slate-600 underline-offset-2 hover:decoration-emerald-400">Change Variation</span>
+                       <span className="underline decoration-slate-600 underline-offset-2 hover:decoration-blue-400">Change Variation</span>
                      </button>
                    )}
 
@@ -276,13 +276,13 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                   <div className="col-span-3 text-center">Done</div>
                 </div>
                 {log?.setLogs.map((set, setIdx) => (
-                  <div key={setIdx} className={`grid grid-cols-10 gap-2 items-center p-2 rounded-lg transition-colors ${set.completed ? 'bg-emerald-900/20' : 'bg-slate-900/50'}`}>
+                  <div key={setIdx} className={`grid grid-cols-10 gap-2 items-center p-2 rounded-lg transition-colors ${set.completed ? 'bg-blue-900/20' : 'bg-slate-900/50'}`}>
                     <div className="col-span-1 text-center text-slate-400 font-mono text-sm">{setIdx + 1}</div>
                     <div className="col-span-3">
                       <input 
                         type="text" 
                         placeholder="kg"
-                        className="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-center text-sm text-white focus:border-emerald-500 focus:outline-none"
+                        className="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-center text-sm text-white focus:border-blue-500 focus:outline-none"
                         value={set.weight}
                         onChange={(e) => updateLog(exercise.id, setIdx, 'weight', e.target.value)}
                       />
@@ -291,7 +291,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                       <input 
                         type="text" 
                         placeholder={exercise.reps.split(' ')[0]} 
-                        className="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-center text-sm text-white focus:border-emerald-500 focus:outline-none"
+                        className="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-center text-sm text-white focus:border-blue-500 focus:outline-none"
                         value={set.reps}
                         onChange={(e) => updateLog(exercise.id, setIdx, 'reps', e.target.value)}
                       />
@@ -299,7 +299,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                     <div className="col-span-3 flex justify-center">
                       <button 
                         onClick={() => toggleComplete(exercise.id, setIdx)}
-                        className={`p-1.5 rounded-full transition-all ${set.completed ? 'text-emerald-400 bg-emerald-950 hover:bg-emerald-900' : 'text-slate-600 hover:text-slate-400'}`}
+                        className={`p-1.5 rounded-full transition-all ${set.completed ? 'text-blue-400 bg-blue-950 hover:bg-blue-900' : 'text-slate-600 hover:text-slate-400'}`}
                       >
                         {set.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
                       </button>
@@ -321,7 +321,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
          <button 
            onClick={handleFinish}
            disabled={isSubmitting}
-           className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+           className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-900/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
          >
            {isSubmitting ? <span className="animate-pulse">Analyzing Session...</span> : <><Save size={20} /> Finish & Analyze</>}
          </button>
@@ -335,7 +335,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                <div>
                   <h3 className="text-white font-bold text-lg">Substitutions</h3>
                   <p className="text-slate-400 text-xs flex items-center gap-1">
-                    Slot <span className="text-emerald-400 font-bold">{activeExercises[swapIndex].order}</span>
+                    Slot <span className="text-blue-400 font-bold">{activeExercises[swapIndex].order}</span>
                     <span className="text-slate-600">•</span>
                     Select variation
                   </p>
@@ -354,18 +354,18 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                       onClick={() => confirmSwap(alt)}
                       className={`w-full text-left p-3 rounded-xl border flex gap-3 transition-all relative overflow-hidden ${
                         isCurrent 
-                        ? 'bg-slate-800 border-emerald-500 ring-1 ring-emerald-500/50' 
+                        ? 'bg-slate-800 border-blue-500 ring-1 ring-blue-500/50' 
                         : 'bg-slate-800 border-slate-700 hover:border-slate-500 hover:bg-slate-700'
                       }`}
                     >
                        {isCurrent && (
-                         <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                         <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
                            ACTIVE
                          </div>
                        )}
 
                        <div className={`mt-0.5 w-8 h-8 rounded-full border flex items-center justify-center shrink-0 ${
-                          isCurrent ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-slate-700 border-slate-600 text-slate-500'
+                          isCurrent ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-slate-700 border-slate-600 text-slate-500'
                        }`}>
                           {isCurrent ? <Check size={16} strokeWidth={3} /> : <div className="w-2 h-2 rounded-full bg-slate-600" />}
                        </div>

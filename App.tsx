@@ -68,14 +68,14 @@ const App: React.FC = () => {
             <div className="space-y-3">
               <button 
                 onClick={() => handleVersionChange('V1')}
-                className={`w-full text-left p-4 rounded-xl border transition-all ${version === 'V1' ? 'bg-emerald-900/20 border-emerald-500 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-400'}`}
+                className={`w-full text-left p-4 rounded-xl border transition-all ${version === 'V1' ? 'bg-blue-900/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'}`}
               >
                 <div className="font-bold">Version 1: Full Gym</div>
                 <div className="text-xs mt-1 opacity-80">Commercial gym access (Smith machine, cables, heavy DBs)</div>
               </button>
               <button 
                 onClick={() => handleVersionChange('V2')}
-                className={`w-full text-left p-4 rounded-xl border transition-all ${version === 'V2' ? 'bg-emerald-900/20 border-emerald-500 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-400'}`}
+                className={`w-full text-left p-4 rounded-xl border transition-all ${version === 'V2' ? 'bg-blue-900/20 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-400'}`}
               >
                 <div className="font-bold">Version 2: Tour Spec (Limited)</div>
                 <div className="text-xs mt-1 opacity-80">Functional Trainer, Multi-Station, Dumbbells</div>
@@ -123,11 +123,11 @@ const App: React.FC = () => {
                 <button 
                   key={w.id}
                   onClick={() => selectFromLibrary(key)}
-                  className="w-full text-left p-4 bg-slate-800 rounded-xl border border-slate-700 hover:border-emerald-500 hover:bg-slate-800/80 transition-all group"
+                  className="w-full text-left p-4 bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 hover:bg-slate-800/80 transition-all group"
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="font-bold text-slate-100 group-hover:text-emerald-400 transition-colors">{w.title}</div>
+                      <div className="font-bold text-slate-100 group-hover:text-blue-400 transition-colors">{w.title}</div>
                       <div className="text-xs text-slate-400 mt-1">{w.focus}</div>
                     </div>
                     <div className="text-xs font-mono bg-slate-900 px-2 py-1 rounded text-slate-500">
@@ -154,7 +154,7 @@ const App: React.FC = () => {
              
              <div className="relative group">
                 <div className="flex items-center gap-2 px-2 py-1 cursor-pointer">
-                  <Calendar size={16} className="text-emerald-500" />
+                  <Calendar size={16} className="text-yellow-400" />
                   <span className="font-semibold text-white min-w-[100px] text-center">
                     {selectedDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                   </span>
@@ -179,7 +179,7 @@ const App: React.FC = () => {
             {todayWorkout ? (
               <>
                 <h1 className="text-3xl font-bold text-white">{todayWorkout.title}</h1>
-                <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-900/30 text-emerald-400 text-sm font-medium border border-emerald-900/50">
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-900/30 text-blue-400 text-sm font-medium border border-blue-900/50">
                   {todayWorkout.focus}
                 </div>
               </>
@@ -190,11 +190,11 @@ const App: React.FC = () => {
         </div>
 
         {todayWorkout ? (
-          <div className="bg-gradient-to-br from-emerald-900/40 to-slate-900 p-8 rounded-3xl border border-emerald-900/30 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+          <div className="bg-gradient-to-br from-blue-900/40 to-slate-900 p-8 rounded-3xl border border-blue-900/30 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
             
             <div className="relative z-10 flex flex-col items-center gap-6">
-              <div className="bg-emerald-500 p-4 rounded-full shadow-lg shadow-emerald-500/20">
+              <div className="bg-blue-600 p-4 rounded-full shadow-lg shadow-blue-500/20">
                 <Dumbbell className="w-8 h-8 text-white" />
               </div>
               
@@ -206,7 +206,7 @@ const App: React.FC = () => {
               <div className="flex flex-col w-full gap-3">
                 <button 
                   onClick={() => setIsSessionActive(true)}
-                  className="w-full bg-white hover:bg-slate-100 text-emerald-900 font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-emerald-900/20"
+                  className="w-full bg-white hover:bg-slate-100 text-blue-900 font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-blue-900/20"
                 >
                   <Play fill="currentColor" size={20} />
                   Start Workout
@@ -232,7 +232,7 @@ const App: React.FC = () => {
              <p className="text-slate-300 mb-6">Take a break. Active recovery like walking or light stretching is recommended for today.</p>
              <button 
                onClick={() => setShowLibrary(true)}
-               className="w-full bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 font-bold py-3 rounded-xl border border-emerald-900/50 transition-colors flex items-center justify-center gap-2"
+               className="w-full bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 font-bold py-3 rounded-xl border border-blue-900/50 transition-colors flex items-center justify-center gap-2"
              >
                <List size={18} />
                Browse Workout Library
@@ -248,7 +248,7 @@ const App: React.FC = () => {
            </div>
            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
               <div className="text-slate-400 text-xs mb-1">Selected Day</div>
-              <div className="text-xl font-bold text-emerald-400">{selectedDate.toLocaleDateString(undefined, { weekday: 'long' })}</div>
+              <div className="text-xl font-bold text-yellow-400">{selectedDate.toLocaleDateString(undefined, { weekday: 'long' })}</div>
            </div>
         </div>
       </div>
