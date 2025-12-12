@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { WorkoutDay, ExerciseLog, Version } from '../types';
-import { CheckCircle2, Circle, Clock, Info, Save, ChevronLeft } from 'lucide-react';
+import { WorkoutDay, ExerciseLog, Version, Exercise } from '../types';
+import { WORKOUTS, SUBSTITUTION_MATRIX } from '../constants';
+import { CheckCircle2, Circle, Clock, Info, Save, ChevronLeft, RefreshCw, X, Check, Dumbbell, Zap, Anchor, Home, Star } from 'lucide-react';
 import { saveLog } from '../services/storageService';
 import { analyzeSession } from '../services/geminiService';
 
@@ -13,21 +14,26 @@ interface WorkoutSessionProps {
 }
 
 export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, date, onFinish, onBack }) => {
+  const [activeExercises, setActiveExercises] = useState<Exercise[]>(day.exercises);
   const [logs, setLogs] = useState<ExerciseLog[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
+  
+  // Swap Modal State
+  const [swapIndex, setSwapIndex] = useState<number | null>(null);
 
-  // Initialize logs based on day.exercises
   useEffect(() => {
-    const initialLogs: ExerciseLog[] = day.exercises
-      .filter(e => !e.isRest)
-      .map(e => ({
-        exerciseId: e.id,
-        setLogs: Array(e.sets).fill({ weight: '', reps: '', completed: false })
-      }));
-    setLogs(initialLogs);
-  }, [day]);
+    if (logs.length === 0) {
+      const initialLogs: ExerciseLog[] = activeExercises
+        .filter(e => !e.isRest)
+        .map(e => ({
+          exerciseId: e.id,
+          setLogs: Array(e.sets).fill({ weight: '', reps: '', completed: false })
+        }));
+      setLogs(initialLogs);
+    }
+  }, [day.id]);
 
   const updateLog = (exerciseId: string, setIndex: number, field: keyof typeof logs[0]['setLogs'][0], value: any) => {
     setLogs(prev => prev.map(log => {
@@ -47,8 +53,90 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
     }));
   };
 
+  // Helper to determine style and label based on notes content or ID
+  const getBiasInfo = (exercise: Exercise) => {
+    // Check if it's an "Original" V1 or V2 workout
+    if (exercise.id.includes('_V1')) return { label: 'V1 Original', color: 'text-indigo-400 bg-indigo-900/30 border-indigo-500/30', icon: <Star size={12} /> };
+    if (exercise.id.includes('_V2')) return { label: 'V2 Limited', color: 'text-pink-400 bg-pink-900/30 border-pink-500/30', icon: <Home size={12} /> };
+    
+    // Check notes for bias
+    const notes = exercise.notes;
+    if (notes.includes('Load Bias')) return { label: 'Strength', color: 'text-purple-400 bg-purple-900/30 border-purple-500/30', icon: <Dumbbell size={12} /> };
+    if (notes.includes('Stability Bias')) return { label: 'Stability', color: 'text-blue-400 bg-blue-900/30 border-blue-500/30', icon: <Anchor size={12} /> };
+    if (notes.includes('Velocity Bias')) return { label: 'Speed', color: 'text-amber-400 bg-amber-900/30 border-amber-500/30', icon: <Zap size={12} /> };
+    if (notes.includes('Limited Equip')) return { label: 'Limited', color: 'text-emerald-400 bg-emerald-900/30 border-emerald-500/30', icon: <Home size={12} /> };
+    return { label: 'Alternative', color: 'text-slate-400 bg-slate-800 border-slate-700', icon: <RefreshCw size={12} /> };
+  };
+
+  const getAlternates = (currentEx: Exercise): Exercise[] | null => {
+    if (currentEx.isRest) return null;
+    
+    const alternates: Exercise[] = [];
+    
+    // 1. Add Original V1 for this slot
+    const v1Day = WORKOUTS['V1'][day.id];
+    const v1Ex = v1Day?.exercises.find(e => e.order === currentEx.order);
+    if (v1Ex) alternates.push(v1Ex);
+
+    // 2. Add Original V2 for this slot
+    const v2Day = WORKOUTS['V2'][day.id];
+    const v2Ex = v2Day?.exercises.find(e => e.order === currentEx.order);
+    if (v2Ex && v2Ex.id !== v1Ex?.id) alternates.push(v2Ex);
+
+    // 3. Add Matrix Alternatives
+    const dayMatrix = SUBSTITUTION_MATRIX[day.id];
+    if (dayMatrix && dayMatrix[currentEx.order]) {
+      dayMatrix[currentEx.order].forEach(alt => {
+        // Prevent duplicates if the matrix happens to contain the original (unlikely now with updated constants, but safe)
+        if (!alternates.some(e => e.id === alt.id)) {
+          alternates.push(alt);
+        }
+      });
+    }
+    
+    if (alternates.length <= 1) return null; // No swaps available if only itself exists
+    return alternates;
+  };
+
+  const confirmSwap = (newExercise: Exercise) => {
+    if (swapIndex === null) return;
+    
+    const exerciseIndex = swapIndex;
+    const currentEx = activeExercises[exerciseIndex];
+    
+    // Skip if selecting the same exercise
+    if (currentEx.id === newExercise.id) {
+        setSwapIndex(null);
+        return;
+    }
+
+    // Update Active Exercises List
+    const newExercises = [...activeExercises];
+    newExercises[exerciseIndex] = newExercise;
+    setActiveExercises(newExercises);
+
+    // Update Logs (Reset logs for this slot since exercise changed)
+    setLogs(prevLogs => {
+      const newLogs = [...prevLogs];
+      const logIndex = newLogs.findIndex(l => l.exerciseId === currentEx.id);
+      
+      const newLogEntry = {
+        exerciseId: newExercise.id,
+        setLogs: Array(newExercise.sets).fill({ weight: '', reps: '', completed: false })
+      };
+
+      if (logIndex !== -1) {
+          newLogs[logIndex] = newLogEntry;
+      } else {
+          newLogs.push(newLogEntry);
+      }
+      return newLogs;
+    });
+
+    setSwapIndex(null);
+  };
+
   const handleBack = () => {
-    // Check if user has entered any data to prevent accidental loss
     const hasData = logs.some(l => l.setLogs.some(s => s.weight || s.reps || s.completed));
     if (hasData) {
       if (window.confirm("Exit workout? Current progress will be lost.")) {
@@ -63,17 +151,14 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
     setIsSubmitting(true);
     const sessionLog = {
       id: Date.now().toString(),
-      date: date.toISOString(), // Use the selected date
+      date: date.toISOString(),
       version,
       dayId: day.id,
       exercises: logs
     };
     
     saveLog(sessionLog);
-
-    // Call Gemini
     const aiFeedback = await analyzeSession(sessionLog);
-    
     setFeedback(aiFeedback);
     setShowFeedback(true);
     setIsSubmitting(false);
@@ -87,7 +172,6 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Workout Complete!</h2>
         <p className="text-slate-400 mb-6">Great session. Here is your AI Coach feedback:</p>
-        
         <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 w-full text-left mb-8 shadow-xl">
           <div className="flex items-center gap-2 mb-3 text-emerald-400 font-semibold">
              <Info size={18} />
@@ -95,11 +179,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
           </div>
           <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">{feedback}</p>
         </div>
-
-        <button 
-          onClick={onFinish}
-          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-emerald-900/20"
-        >
+        <button onClick={onFinish} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition shadow-lg">
           Return to Dashboard
         </button>
       </div>
@@ -107,29 +187,26 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Header */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <button 
-            onClick={handleBack}
-            className="p-2 -ml-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-            aria-label="Go back"
-          >
+          <button onClick={handleBack} className="p-2 -ml-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
             <ChevronLeft size={28} />
           </button>
           <h1 className="text-2xl font-bold text-white leading-none">{day.title}</h1>
         </div>
-        
         <div className="flex items-center justify-between pl-1">
           <p className="text-emerald-500 font-medium">{day.focus}</p>
           <div className="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-slate-400 border border-slate-700">
-            {day.exercises.filter(e => !e.isRest).length} Moves
+            {activeExercises.filter(e => !e.isRest).length} Moves
           </div>
         </div>
       </div>
 
+      {/* Exercises List */}
       <div className="space-y-4">
-        {day.exercises.map((exercise, idx) => {
+        {activeExercises.map((exercise, idx) => {
           if (exercise.isRest) {
             return (
               <div key={`rest-${idx}`} className="flex items-center justify-center gap-2 py-3 bg-slate-800/50 rounded-lg border border-dashed border-slate-700 text-slate-400 text-sm">
@@ -140,27 +217,57 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
           }
 
           const log = logs.find(l => l.exerciseId === exercise.id);
+          const alternates = getAlternates(exercise);
+          // Pre-calculate bias info for current exercise to show in list
+          const biasInfo = getBiasInfo(exercise);
 
           return (
-            <div key={exercise.id} className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700/50 shadow-sm">
+            <div key={exercise.id} className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700/50 shadow-sm animate-fade-in">
               <div className="p-4 bg-slate-800 border-b border-slate-700/50 flex justify-between items-start">
-                <div>
+                <div className="flex-1 mr-2">
                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-emerald-400 font-bold text-lg">{exercise.order}</span>
-                      <h3 className="font-semibold text-slate-100">{exercise.name}</h3>
+                      {/* Clickable Order Badge for Swapping */}
+                      <button 
+                        onClick={() => alternates && setSwapIndex(idx)}
+                        disabled={!alternates}
+                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg border transition-all ${
+                          alternates 
+                            ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-400 hover:bg-emerald-900/60 hover:border-emerald-400 cursor-pointer' 
+                            : 'border-transparent text-emerald-400 font-bold text-lg p-0'
+                        }`}
+                      >
+                         <span className={alternates ? "font-bold" : "font-bold text-lg"}>{exercise.order}</span>
+                         {alternates && <RefreshCw size={12} className={alternates ? "" : ""} />}
+                      </button>
+
+                      <h3 className="font-semibold text-slate-100 text-lg leading-tight">{exercise.name}</h3>
                    </div>
-                   <div className="flex gap-3 text-xs text-slate-400">
+                   
+                   {alternates && (
+                     <button 
+                        onClick={() => setSwapIndex(idx)}
+                        className="text-xs flex items-center gap-1.5 text-slate-400 hover:text-emerald-300 transition-colors mb-2 ml-1"
+                     >
+                       <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border ${biasInfo.color} text-[10px]`}>
+                          {biasInfo.icon}
+                          {biasInfo.label}
+                       </span>
+                       <span className="underline decoration-slate-600 underline-offset-2 hover:decoration-emerald-400">Change Variation</span>
+                     </button>
+                   )}
+
+                   <div className="flex gap-3 text-xs text-slate-400 mt-1">
                       <span className="bg-slate-900 px-2 py-0.5 rounded">Tempo: {exercise.tempo}</span>
                       <span className="bg-slate-900 px-2 py-0.5 rounded">Target: {exercise.reps}</span>
                    </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <span className="text-xs text-slate-500 block">Guide</span>
                   <span className="text-sm font-medium text-slate-300">{exercise.weightGuide}</span>
                 </div>
               </div>
               
-              {/* Sets */}
+              {/* Sets Input */}
               <div className="p-2 space-y-1">
                 <div className="grid grid-cols-10 gap-2 px-2 text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
                   <div className="col-span-1 text-center">Set</div>
@@ -183,7 +290,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                     <div className="col-span-3">
                       <input 
                         type="text" 
-                        placeholder={exercise.reps.split(' ')[0]} // Hint with target reps
+                        placeholder={exercise.reps.split(' ')[0]} 
                         className="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-center text-sm text-white focus:border-emerald-500 focus:outline-none"
                         value={set.reps}
                         onChange={(e) => updateLog(exercise.id, setIdx, 'reps', e.target.value)}
@@ -216,16 +323,79 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
            disabled={isSubmitting}
            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
          >
-           {isSubmitting ? (
-             <>Processing AI Analysis...</>
-           ) : (
-             <>
-               <Save size={20} />
-               Finish & Analyze
-             </>
-           )}
+           {isSubmitting ? <span className="animate-pulse">Analyzing Session...</span> : <><Save size={20} /> Finish & Analyze</>}
          </button>
       </div>
+
+      {/* SWAP MODAL */}
+      {swapIndex !== null && activeExercises[swapIndex] && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 w-full max-w-sm rounded-2xl border border-slate-700 shadow-2xl overflow-hidden max-h-[80vh] flex flex-col">
+             <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-800">
+               <div>
+                  <h3 className="text-white font-bold text-lg">Substitutions</h3>
+                  <p className="text-slate-400 text-xs flex items-center gap-1">
+                    Slot <span className="text-emerald-400 font-bold">{activeExercises[swapIndex].order}</span>
+                    <span className="text-slate-600">•</span>
+                    Select variation
+                  </p>
+               </div>
+               <button onClick={() => setSwapIndex(null)} className="p-2 text-slate-400 hover:text-white"><X size={20} /></button>
+             </div>
+             
+             <div className="overflow-y-auto p-3 space-y-3 bg-slate-950/50 flex-1">
+                {getAlternates(activeExercises[swapIndex])?.map((alt) => {
+                  const isCurrent = alt.id === activeExercises[swapIndex].id;
+                  const biasInfo = getBiasInfo(alt);
+                  
+                  return (
+                    <button 
+                      key={alt.id}
+                      onClick={() => confirmSwap(alt)}
+                      className={`w-full text-left p-3 rounded-xl border flex gap-3 transition-all relative overflow-hidden ${
+                        isCurrent 
+                        ? 'bg-slate-800 border-emerald-500 ring-1 ring-emerald-500/50' 
+                        : 'bg-slate-800 border-slate-700 hover:border-slate-500 hover:bg-slate-700'
+                      }`}
+                    >
+                       {isCurrent && (
+                         <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-bl-lg font-bold">
+                           ACTIVE
+                         </div>
+                       )}
+
+                       <div className={`mt-0.5 w-8 h-8 rounded-full border flex items-center justify-center shrink-0 ${
+                          isCurrent ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-slate-700 border-slate-600 text-slate-500'
+                       }`}>
+                          {isCurrent ? <Check size={16} strokeWidth={3} /> : <div className="w-2 h-2 rounded-full bg-slate-600" />}
+                       </div>
+                       
+                       <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wider ${biasInfo.color}`}>
+                              {biasInfo.icon}
+                              {biasInfo.label}
+                            </span>
+                          </div>
+                          <div className={`font-bold text-sm truncate ${isCurrent ? 'text-white' : 'text-slate-200'}`}>{alt.name}</div>
+                          <div className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">{alt.notes}</div>
+                          
+                          <div className="flex gap-2 mt-2 pt-2 border-t border-slate-700/50">
+                             <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                               <Dumbbell size={10} /> {alt.weightGuide}
+                             </span>
+                             <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                               <Clock size={10} /> {alt.tempo}
+                             </span>
+                          </div>
+                       </div>
+                    </button>
+                  );
+                })}
+             </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

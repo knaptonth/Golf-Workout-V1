@@ -1,8 +1,9 @@
+
 export type Version = 'V1' | 'V2';
 
 export interface Exercise {
   id: string;
-  order: string;
+  order: string; // e.g., '1A', '1B'
   name: string;
   sets: number;
   reps: string; // string to handle "6 / side"
@@ -46,4 +47,10 @@ export interface SessionLog {
 
 export interface WeeklySchedule {
   [key: number]: string; // 0=Sunday, 1=Monday, etc. -> key to WorkoutDay
+}
+
+export interface SubstitutionMatrix {
+  [dayId: string]: {
+    [order: string]: Exercise[];
+  };
 }

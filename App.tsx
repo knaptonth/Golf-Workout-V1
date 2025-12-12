@@ -4,34 +4,41 @@ import { WorkoutSession } from './components/WorkoutSession';
 import { History } from './components/History';
 import { WORKOUTS, SCHEDULE } from './constants';
 import { getPreferredVersion, setPreferredVersion } from './services/storageService';
-import { Version } from './types';
-import { Dumbbell, Play, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Version, WorkoutDay } from './types';
+import { Dumbbell, Play, Calendar, ChevronLeft, ChevronRight, List } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('workout');
   const [version, setVersion] = useState<Version>(getPreferredVersion());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isSessionActive, setIsSessionActive] = useState(false);
+  const [manualWorkout, setManualWorkout] = useState<WorkoutDay | null>(null);
+  const [showLibrary, setShowLibrary] = useState(false);
 
   // Determine workout based on selectedDate
   const todayWorkout = useMemo(() => {
+    if (manualWorkout) return manualWorkout;
+    
     const dayIndex = selectedDate.getDay(); // 0-6
     const dayKey = SCHEDULE[dayIndex];
     if (dayKey && WORKOUTS[version][dayKey]) {
       return WORKOUTS[version][dayKey];
     }
     return null; // Rest day or undefined
-  }, [version, selectedDate]);
+  }, [version, selectedDate, manualWorkout]);
 
   const handleVersionChange = (newVersion: Version) => {
     setVersion(newVersion);
     setPreferredVersion(newVersion);
+    // Reset manual workout on version change to avoid data mismatch
+    setManualWorkout(null); 
   };
 
   const changeDate = (days: number) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(selectedDate.getDate() + days);
     setSelectedDate(newDate);
+    setManualWorkout(null); // Reset manual override when date changes
   };
 
   const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +46,12 @@ const App: React.FC = () => {
     const [year, month, day] = e.target.value.split('-').map(Number);
     // Create date in local time
     setSelectedDate(new Date(year, month - 1, day));
+    setManualWorkout(null);
+  };
+
+  const selectFromLibrary = (key: string) => {
+    setManualWorkout(WORKOUTS[version][key]);
+    setShowLibrary(false);
   };
 
   const renderContent = () => {
@@ -79,14 +92,55 @@ const App: React.FC = () => {
           day={todayWorkout} 
           version={version} 
           date={selectedDate} 
-          onFinish={() => setIsSessionActive(false)}
-          onBack={() => setIsSessionActive(false)}
+          onFinish={() => {
+            setIsSessionActive(false);
+            setManualWorkout(null);
+          }}
+          onBack={() => {
+            setIsSessionActive(false);
+          }}
         />
       );
     }
 
     // Format date string YYYY-MM-DD for input value
     const dateInputValue = selectedDate.toLocaleDateString('en-CA'); 
+
+    if (showLibrary) {
+      return (
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowLibrary(false)} className="p-2 -ml-2 text-slate-400 hover:text-white">
+              <ChevronLeft size={24} />
+            </button>
+            <h2 className="text-2xl font-bold text-white">Workout Library</h2>
+          </div>
+          <p className="text-slate-400 text-sm">Select a workout to perform today ({version}).</p>
+          <div className="space-y-3">
+            {Object.keys(WORKOUTS[version]).map(key => {
+              const w = WORKOUTS[version][key];
+              return (
+                <button 
+                  key={w.id}
+                  onClick={() => selectFromLibrary(key)}
+                  className="w-full text-left p-4 bg-slate-800 rounded-xl border border-slate-700 hover:border-emerald-500 hover:bg-slate-800/80 transition-all group"
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-slate-100 group-hover:text-emerald-400 transition-colors">{w.title}</div>
+                      <div className="text-xs text-slate-400 mt-1">{w.focus}</div>
+                    </div>
+                    <div className="text-xs font-mono bg-slate-900 px-2 py-1 rounded text-slate-500">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="space-y-8 py-4 animate-fade-in">
@@ -119,7 +173,9 @@ const App: React.FC = () => {
           </div>
 
           <div className="space-y-2 mt-4">
-            <h2 className="text-slate-400 text-sm uppercase tracking-widest">Workout Protocol</h2>
+            <h2 className="text-slate-400 text-sm uppercase tracking-widest">
+              {manualWorkout ? 'Manual Selection' : 'Scheduled Protocol'}
+            </h2>
             {todayWorkout ? (
               <>
                 <h1 className="text-3xl font-bold text-white">{todayWorkout.title}</h1>
@@ -147,22 +203,38 @@ const App: React.FC = () => {
                  <p className="text-slate-300">Structure: <span className="text-white font-bold">Contrast Supersets</span></p>
               </div>
 
-              <button 
-                onClick={() => setIsSessionActive(true)}
-                className="w-full bg-white hover:bg-slate-100 text-emerald-900 font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95"
-              >
-                <Play fill="currentColor" size={20} />
-                Start Workout
-              </button>
+              <div className="flex flex-col w-full gap-3">
+                <button 
+                  onClick={() => setIsSessionActive(true)}
+                  className="w-full bg-white hover:bg-slate-100 text-emerald-900 font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-emerald-900/20"
+                >
+                  <Play fill="currentColor" size={20} />
+                  Start Workout
+                </button>
+                
+                <button 
+                  onClick={() => setShowLibrary(true)}
+                  className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-3 rounded-xl flex items-center justify-center gap-2 border border-slate-700 transition-colors"
+                >
+                  <List size={18} />
+                  Change Workout
+                </button>
+              </div>
             </div>
           </div>
         ) : (
-           <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 text-center">
-             <p className="text-slate-300 mb-4">Take a break. Active recovery like walking or light stretching is recommended.</p>
+           <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 text-center shadow-lg">
+             <div className="mb-6 flex justify-center opacity-50">
+                <div className="bg-slate-700/50 p-4 rounded-full">
+                  <Calendar size={32} className="text-slate-400" />
+                </div>
+             </div>
+             <p className="text-slate-300 mb-6">Take a break. Active recovery like walking or light stretching is recommended for today.</p>
              <button 
-               onClick={() => { /* logic to force a specific workout could go here */ }}
-               className="text-emerald-500 text-sm hover:underline"
+               onClick={() => setShowLibrary(true)}
+               className="w-full bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 font-bold py-3 rounded-xl border border-emerald-900/50 transition-colors flex items-center justify-center gap-2"
              >
+               <List size={18} />
                Browse Workout Library
              </button>
            </div>

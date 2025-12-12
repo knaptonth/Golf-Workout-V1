@@ -56,7 +56,7 @@ const NavButton = ({ icon, label, isActive, onClick }: { icon: React.ReactNode, 
     onClick={onClick}
     className={`flex flex-col items-center gap-1 p-2 w-full rounded-xl transition-all duration-200 ${isActive ? 'text-emerald-400 bg-emerald-950/30' : 'text-slate-500 hover:text-slate-300'}`}
   >
-    {React.cloneElement(icon as React.ReactElement, { size: 20 })}
+    {React.cloneElement(icon as React.ReactElement<any>, { size: 20 })}
     <span className="text-xs font-medium">{label}</span>
   </button>
 );
