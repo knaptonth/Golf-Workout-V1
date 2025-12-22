@@ -31,6 +31,7 @@ export interface ExerciseLog {
   setLogs: {
     weight: string;
     reps: string;
+    effort: number; // 1-4 level theory
     completed: boolean;
   }[];
 }
