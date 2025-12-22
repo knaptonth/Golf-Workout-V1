@@ -1,4 +1,4 @@
-import { SessionLog, Version } from '../types';
+import { SessionLog, Version, ExerciseLog } from '../types';
 
 const LOGS_KEY = 'golf_tracker_logs';
 const VERSION_KEY = 'golf_tracker_version';
@@ -20,4 +20,13 @@ export const getPreferredVersion = (): Version => {
 
 export const setPreferredVersion = (v: Version) => {
   localStorage.setItem(VERSION_KEY, v);
+};
+
+export const getLastLogForExercise = (exerciseId: string): ExerciseLog | null => {
+  const logs = getLogs();
+  for (const session of logs) {
+    const found = session.exercises.find(e => e.exerciseId === exerciseId);
+    if (found) return found;
+  }
+  return null;
 };

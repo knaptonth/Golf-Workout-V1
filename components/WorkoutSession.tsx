@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { WorkoutDay, ExerciseLog, Version, Exercise } from '../types';
 import { WORKOUTS, SUBSTITUTION_MATRIX } from '../constants';
 import { CheckCircle2, Circle, Clock, Info, Save, ChevronLeft, RefreshCw, X, Check, Dumbbell, Zap, Anchor, Home, Star } from 'lucide-react';
-import { saveLog } from '../services/storageService';
+import { saveLog, getLastLogForExercise } from '../services/storageService';
 import { analyzeSession } from '../services/geminiService';
 
 interface WorkoutSessionProps {
@@ -24,16 +24,23 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
   const [swapIndex, setSwapIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (logs.length === 0) {
-      const initialLogs: ExerciseLog[] = activeExercises
-        .filter(e => !e.isRest)
-        .map(e => ({
+    // Initialize logs with data from the previous session if available
+    const initialLogs: ExerciseLog[] = activeExercises
+      .filter(e => !e.isRest)
+      .map(e => {
+        const lastLog = getLastLogForExercise(e.id);
+        return {
           exerciseId: e.id,
-          setLogs: Array(e.sets).fill({ weight: '', reps: '', completed: false })
-        }));
-      setLogs(initialLogs);
-    }
-  }, [day.id]);
+          setLogs: Array(e.sets).fill(null).map((_, i) => ({
+            // Pre-fill with last session's data, or empty string
+            weight: lastLog?.setLogs[i]?.weight || '',
+            reps: lastLog?.setLogs[i]?.reps || '',
+            completed: false
+          }))
+        };
+      });
+    setLogs(initialLogs);
+  }, [activeExercises]);
 
   const updateLog = (exerciseId: string, setIndex: number, field: keyof typeof logs[0]['setLogs'][0], value: any) => {
     setLogs(prev => prev.map(log => {
@@ -53,13 +60,10 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
     }));
   };
 
-  // Helper to determine style and label based on notes content or ID
   const getBiasInfo = (exercise: Exercise) => {
-    // Check if it's an "Original" V1 or V2 workout
     if (exercise.id.includes('_V1')) return { label: 'V1 Original', color: 'text-indigo-400 bg-indigo-900/30 border-indigo-500/30', icon: <Star size={12} /> };
     if (exercise.id.includes('_V2')) return { label: 'V2 Limited', color: 'text-yellow-400 bg-yellow-900/30 border-yellow-500/30', icon: <Home size={12} /> };
     
-    // Check notes for bias
     const notes = exercise.notes;
     if (notes.includes('Load Bias')) return { label: 'Strength', color: 'text-purple-400 bg-purple-900/30 border-purple-500/30', icon: <Dumbbell size={12} /> };
     if (notes.includes('Stability Bias')) return { label: 'Stability', color: 'text-blue-400 bg-blue-900/30 border-blue-500/30', icon: <Anchor size={12} /> };
@@ -70,74 +74,45 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
 
   const getAlternates = (currentEx: Exercise): Exercise[] | null => {
     if (currentEx.isRest) return null;
-    
     const alternates: Exercise[] = [];
     
-    // 1. Add Original V1 for this slot
     const v1Day = WORKOUTS['V1'][day.id];
     const v1Ex = v1Day?.exercises.find(e => e.order === currentEx.order);
     if (v1Ex) alternates.push(v1Ex);
 
-    // 2. Add Original V2 for this slot
     const v2Day = WORKOUTS['V2'][day.id];
     const v2Ex = v2Day?.exercises.find(e => e.order === currentEx.order);
     if (v2Ex && v2Ex.id !== v1Ex?.id) alternates.push(v2Ex);
 
-    // 3. Add Matrix Alternatives
     const dayMatrix = SUBSTITUTION_MATRIX[day.id];
     if (dayMatrix && dayMatrix[currentEx.order]) {
       dayMatrix[currentEx.order].forEach(alt => {
-        // Prevent duplicates if the matrix happens to contain the original (unlikely now with updated constants, but safe)
         if (!alternates.some(e => e.id === alt.id)) {
           alternates.push(alt);
         }
       });
     }
     
-    if (alternates.length <= 1) return null; // No swaps available if only itself exists
+    if (alternates.length <= 1) return null;
     return alternates;
   };
 
   const confirmSwap = (newExercise: Exercise) => {
     if (swapIndex === null) return;
-    
     const exerciseIndex = swapIndex;
     const currentEx = activeExercises[exerciseIndex];
-    
-    // Skip if selecting the same exercise
     if (currentEx.id === newExercise.id) {
         setSwapIndex(null);
         return;
     }
-
-    // Update Active Exercises List
     const newExercises = [...activeExercises];
     newExercises[exerciseIndex] = newExercise;
     setActiveExercises(newExercises);
-
-    // Update Logs (Reset logs for this slot since exercise changed)
-    setLogs(prevLogs => {
-      const newLogs = [...prevLogs];
-      const logIndex = newLogs.findIndex(l => l.exerciseId === currentEx.id);
-      
-      const newLogEntry = {
-        exerciseId: newExercise.id,
-        setLogs: Array(newExercise.sets).fill({ weight: '', reps: '', completed: false })
-      };
-
-      if (logIndex !== -1) {
-          newLogs[logIndex] = newLogEntry;
-      } else {
-          newLogs.push(newLogEntry);
-      }
-      return newLogs;
-    });
-
     setSwapIndex(null);
   };
 
   const handleBack = () => {
-    const hasData = logs.some(l => l.setLogs.some(s => s.weight || s.reps || s.completed));
+    const hasData = logs.some(l => l.setLogs.some(s => s.completed));
     if (hasData) {
       if (window.confirm("Exit workout? Current progress will be lost.")) {
         onBack();
@@ -188,7 +163,6 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
 
   return (
     <div className="space-y-6 relative">
-      {/* Header */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <button onClick={handleBack} className="p-2 -ml-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
@@ -204,7 +178,6 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
         </div>
       </div>
 
-      {/* Exercises List */}
       <div className="space-y-4">
         {activeExercises.map((exercise, idx) => {
           if (exercise.isRest) {
@@ -218,7 +191,6 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
 
           const log = logs.find(l => l.exerciseId === exercise.id);
           const alternates = getAlternates(exercise);
-          // Pre-calculate bias info for current exercise to show in list
           const biasInfo = getBiasInfo(exercise);
 
           return (
@@ -226,7 +198,6 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
               <div className="p-4 bg-slate-800 border-b border-slate-700/50 flex justify-between items-start">
                 <div className="flex-1 mr-2">
                    <div className="flex items-center gap-2 mb-1">
-                      {/* Clickable Order Badge for Swapping */}
                       <button 
                         onClick={() => alternates && setSwapIndex(idx)}
                         disabled={!alternates}
@@ -237,7 +208,7 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                         }`}
                       >
                          <span className={alternates ? "font-bold" : "font-bold text-lg"}>{exercise.order}</span>
-                         {alternates && <RefreshCw size={12} className={alternates ? "" : ""} />}
+                         {alternates && <RefreshCw size={12} />}
                       </button>
 
                       <h3 className="font-semibold text-slate-100 text-lg leading-tight">{exercise.name}</h3>
@@ -267,7 +238,6 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                 </div>
               </div>
               
-              {/* Sets Input */}
               <div className="p-2 space-y-1">
                 <div className="grid grid-cols-10 gap-2 px-2 text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">
                   <div className="col-span-1 text-center">Set</div>
@@ -280,7 +250,8 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                     <div className="col-span-1 text-center text-slate-400 font-mono text-sm">{setIdx + 1}</div>
                     <div className="col-span-3">
                       <input 
-                        type="text" 
+                        type="text"
+                        inputMode="decimal"
                         placeholder="kg"
                         className="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-center text-sm text-white focus:border-blue-500 focus:outline-none"
                         value={set.weight}
@@ -289,7 +260,8 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
                     </div>
                     <div className="col-span-3">
                       <input 
-                        type="text" 
+                        type="text"
+                        inputMode="numeric"
                         placeholder={exercise.reps.split(' ')[0]} 
                         className="w-full bg-slate-950 border border-slate-700 rounded p-1.5 text-center text-sm text-white focus:border-blue-500 focus:outline-none"
                         value={set.reps}
@@ -327,7 +299,6 @@ export const WorkoutSession: React.FC<WorkoutSessionProps> = ({ day, version, da
          </button>
       </div>
 
-      {/* SWAP MODAL */}
       {swapIndex !== null && activeExercises[swapIndex] && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
           <div className="bg-slate-900 w-full max-w-sm rounded-2xl border border-slate-700 shadow-2xl overflow-hidden max-h-[80vh] flex flex-col">
